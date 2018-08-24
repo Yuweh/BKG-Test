@@ -7,15 +7,16 @@
 //
 
 import UIKit
+import CocoaLumberjackSwift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplicationBackgroundFetchIntervalMinimum)
         return true
     }
 
@@ -27,14 +28,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+        DDLogInfo(" TEST *** applicationDidEnterBackground")
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        DDLogInfo(" TEST *** applicationWillEnterForeground")
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        DDLogInfo(" TEST *** applicationDidBecomeActive")
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
@@ -42,5 +46,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 
+    func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        if UIApplication.shared.backgroundRefreshStatus == .available {
+            DDLogInfo(" TEST .newData *** Background Fetch triggered")
+            completionHandler(.newData)
+        } else {
+            DDLogInfo(" TEST .noData *** Background Fetch triggered")
+            completionHandler(.noData)
+        }
+    }
+
+    //SetUp for LumberJack
+    
+    public let fileLogger: DDFileLogger = DDFileLogger()
+    private func setupLogger() {
+        DDLog.add(DDTTYLogger.sharedInstance)
+        
+        // File logger
+        fileLogger.rollingFrequency = TimeInterval(60*60*24)
+        fileLogger.logFileManager.maximumNumberOfLogFiles = 7
+        DDLog.add(fileLogger, with: .info)
+    }
+
+    
 }
 
